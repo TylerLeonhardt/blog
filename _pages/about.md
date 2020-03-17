@@ -4,10 +4,8 @@ title: About Me
 permalink: /about/
 ---
 
-This is where you put the contents of your *About* page. Like all your pages, it's in [Markdown](https://guides.github.com/features/mastering-markdown/) format.
+I'm a software engineer on the [PowerShell](https://github.com/PowerShell/PowerShell) team at Microsoft. In addition to PowerShell itself, I work on the [Visual Studio Code extension for PowerShell](https://github.com/PowerShell/vscode-powershell), work on the [PowerShell subkernel for .NET Interactive](https://github.com/dotnet/interactive), helped ship the PowerShell experience in Azure Functions v2+, and more! I also [live stream coding](https://TylerLeonhardt.live) at work. I'm a developer experience nut, love coffee and love to customize mechanical keyboards.
 
-This website is powered by **[fastpages](https://github.com/fastai/fastpages)** [^1].
+I use C#, TypeScript, and of course, PowerShell, every day.
 
-
-
-[^1]:a blogging platform that natively supports Jupyter notebooks in addition to other formats.
+See what I'm up to both at work and off work on my [GitHub](https://github.com/TylerLeonhardt) 🐙🐈
