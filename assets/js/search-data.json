@@ -3,9 +3,9 @@
     
         "post0": {
             "title": "Messing with WordClouds using PowerShell",
-            "content": "Install-Module PSWordCloud -Force . . Grab the .NET Interactive codebase, extract the zip and delete it: . irm https://api.github.com/repos/dotnet/interactive/zipball -OutFile interactive.zip try { Expand-Archive ./interactive.zip -Force } finally { Remove-Item ./interactive.zip } . . Get all of the files from the interactive folder, read their contents and craft a word cloud with it. . gci -Recurse -File ./interactive/ | gc | New-WordCloud -Path ./dotnet-interactive.svg . . Leveraging the #!markdown magic command, we can render our new SVG: . Note: My blog mangles this path for some reason... the actual &#8217;path&#8217; should just be dotnet-interactive.svg . #!markdown ![.NET Interactive codebase word cloud](/blog/images/copied_from_nb/dotnet-interactive.svg) . .",
-            "url": "https://tylerleonhardt.github.io/blog/2020/03/16/Word-Clouds.html",
-            "relUrl": "/2020/03/16/Word-Clouds.html",
+            "content": "Install PSWordCloud by @vexx32 . Install-Module PSWordCloud -Force . . Grab the .NET Interactive codebase, extract the zip and delete it: . irm https://api.github.com/repos/dotnet/interactive/zipball -OutFile interactive.zip try { Expand-Archive ./interactive.zip -Force } finally { Remove-Item ./interactive.zip } . . Get all of the files from the interactive folder, read their contents and craft a word cloud with it. . gci -Recurse -File ./interactive/ | gc | New-WordCloud -Path ./dotnet-interactive.svg . . Leveraging the #!markdown magic command, we can render our new SVG: . Note: My blog mangles this path for some reason... the actual &#8217;path&#8217; should just be dotnet-interactive.svg . #!markdown ![.NET Interactive codebase word cloud](/blog/images/copied_from_nb/dotnet-interactive.svg) . .",
+            "url": "https://tylerleonhardt.github.io/blog/jupyter/powershell/pswordcloud/2020/03/16/Word-Clouds.html",
+            "relUrl": "/jupyter/powershell/pswordcloud/2020/03/16/Word-Clouds.html",
             "date": " • Mar 16, 2020"
         }
         
