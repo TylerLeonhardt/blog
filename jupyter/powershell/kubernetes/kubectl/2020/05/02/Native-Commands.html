@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Move your onboarding docs/troubleshooting guides to Notebooks - kubctl edition | Tyler Leonhardt’s blog</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Move your onboarding docs/troubleshooting guides to Notebooks - kubctl edition" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A blog post (and example Notebook) about using PowerShell Notebooks for your onboarding docs" />
+<meta property="og:description" content="A blog post (and example Notebook) about using PowerShell Notebooks for your onboarding docs" />
+<link rel="canonical" href="https://tylerleonhardt.github.io/blog/jupyter/powershell/kubernetes/kubectl/2020/05/02/Native-Commands.html" />
+<meta property="og:url" content="https://tylerleonhardt.github.io/blog/jupyter/powershell/kubernetes/kubectl/2020/05/02/Native-Commands.html" />
+<meta property="og:site_name" content="Tyler Leonhardt’s blog" />
+<meta property="og:image" content="https://tylerleonhardt.github.io/blog/images/k8s.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-02T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"A blog post (and example Notebook) about using PowerShell Notebooks for your onboarding docs","@type":"BlogPosting","headline":"Move your onboarding docs/troubleshooting guides to Notebooks - kubctl edition","dateModified":"2020-05-02T00:00:00-05:00","datePublished":"2020-05-02T00:00:00-05:00","image":"https://tylerleonhardt.github.io/blog/images/k8s.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://tylerleonhardt.github.io/blog/jupyter/powershell/kubernetes/kubectl/2020/05/02/Native-Commands.html"},"url":"https://tylerleonhardt.github.io/blog/jupyter/powershell/kubernetes/kubectl/2020/05/02/Native-Commands.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://tylerleonhardt.github.io/blog/feed.xml" title="Tyler Leonhardt's blog" /><link rel="shortcut icon" type="image/x-icon" href="/blog/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Move your onboarding docs/troubleshooting guides to Notebooks - kubctl edition | Tyler Leonhardt’s blog</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Move your onboarding docs/troubleshooting guides to Notebooks - kubctl edition" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A blog post (and example Notebook) about using PowerShell Notebooks for your onboarding docs" />
+<meta property="og:description" content="A blog post (and example Notebook) about using PowerShell Notebooks for your onboarding docs" />
+<link rel="canonical" href="https://tylerleonhardt.github.io/blog/jupyter/powershell/kubernetes/kubectl/2020/05/02/Native-Commands.html" />
+<meta property="og:url" content="https://tylerleonhardt.github.io/blog/jupyter/powershell/kubernetes/kubectl/2020/05/02/Native-Commands.html" />
+<meta property="og:site_name" content="Tyler Leonhardt’s blog" />
+<meta property="og:image" content="https://tylerleonhardt.github.io/blog/images/k8s.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-02T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"A blog post (and example Notebook) about using PowerShell Notebooks for your onboarding docs","@type":"BlogPosting","headline":"Move your onboarding docs/troubleshooting guides to Notebooks - kubctl edition","dateModified":"2020-05-02T00:00:00-05:00","datePublished":"2020-05-02T00:00:00-05:00","image":"https://tylerleonhardt.github.io/blog/images/k8s.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://tylerleonhardt.github.io/blog/jupyter/powershell/kubernetes/kubectl/2020/05/02/Native-Commands.html"},"url":"https://tylerleonhardt.github.io/blog/jupyter/powershell/kubernetes/kubectl/2020/05/02/Native-Commands.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://tylerleonhardt.github.io/blog/feed.xml" title="Tyler Leonhardt's blog" />
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/blog/">Tyler Leonhardt&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/blog/about/">About Me</a><a class="page-link" href="/blog/search/">Search</a><a class="page-link" href="/blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Move your onboarding docs/troubleshooting guides to Notebooks - `kubctl` edition</h1><p class="page-description">A blog post (and example Notebook) about using PowerShell Notebooks for your onboarding docs</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-05-02T00:00:00-05:00" itemprop="datePublished">
+        May 2, 2020
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      9 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/blog/categories/#jupyter">jupyter</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#powershell">powershell</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#kubernetes">kubernetes</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#kubectl">kubectl</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/TylerLeonhardt/blog/tree/master/_notebooks/2020-05-02-Native-Commands.ipynb" role="button">
+<img class="notebook-badge-image" src="/blog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div><div class="px-2">
+    <a href="https://colab.research.google.com/github/TylerLeonhardt/blog/blob/master/_notebooks/2020-05-02-Native-Commands.ipynb">
+        <img class="notebook-badge-image" src="/blog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#The-goal---Leveraging-PowerShell-doesn't-mean-you-have-to-use-PowerShell-commands">The goal - Leveraging PowerShell doesn&#39;t mean you have to use PowerShell commands </a></li>
+<li class="toc-entry toc-h2"><a href="#Prereqs">Prereqs </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Install-powershell-yaml">Install powershell-yaml </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Now-the-"demo"...">Now the &quot;demo&quot;... </a></li>
+<li class="toc-entry toc-h2"><a href="#Using-kubectl-describe-pod-to-fetch-details-about-pods">Using kubectl describe pod to fetch details about pods </a></li>
+<li class="toc-entry toc-h2"><a href="#Example:-debugging-Pending-Pods">Example: debugging Pending Pods </a></li>
+<li class="toc-entry toc-h2"><a href="#The-end">The end </a></li>
+<li class="toc-entry toc-h2"><a href="#Remember-what-the-goal-of-this-was">Remember what the goal of this was </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-05-02-Native-Commands.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="The-goal---Leveraging-PowerShell-doesn't-mean-you-have-to-use-PowerShell-commands">
+<a class="anchor" href="#The-goal---Leveraging-PowerShell-doesn't-mean-you-have-to-use-PowerShell-commands" aria-hidden="true"><span class="octicon octicon-link"></span></a>The goal - Leveraging PowerShell doesn't mean you have to use PowerShell commands<a class="anchor-link" href="#The-goal---Leveraging-PowerShell-doesn't-mean-you-have-to-use-PowerShell-commands"> </a>
+</h2>
+<p>PowerShell is a <em>shell</em> just like <code>bash</code>, <code>zsh</code>, <code>fish</code>, etc. Which means it can also be used for running native commands or standalone executables... like <code>kubectl</code>.</p>
+<p>This post is all about using Notebooks as a form of documentation. To do this, I've taken an actual <a href="https://kubernetes.io/docs/tasks/debug-application-cluster/debug-application-introspection/#example-debugging-pending-pods">Kubernetes docs page</a> and converted it into a Notebook.</p>
+<p><strong>You should be able to download this ipynb file, open it and follow along by clicking play next to each code block (assuming you have the prereqs).</strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Prereqs">
+<a class="anchor" href="#Prereqs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Prereqs<a class="anchor-link" href="#Prereqs"> </a>
+</h2>
+<ul>
+<li>
+<a href="https://jupyter.readthedocs.io/en/latest/projects/content-projects.html#installation">Jupyter</a> and a jupyter client - I used <a href="https://docs.microsoft.com/en-us/sql/azure-data-studio/download-azure-data-studio?view=sql-server-ver15#download-insiders-build-of-azure-data-studio">Azure Data Studio (insiders)</a> for this but you could use <a href="https://github.com/jupyterlab/jupyterlab#getting-started">Jupyter Lab</a> or <a href="https://nteract.io/">nteract</a>. Those are great too!</li>
+<li>
+<a href="https://github.com/dotnet/interactive#how-to-install-net-interactive">.NET Interactive</a> - A .NET Jupyter Kernel that supports C#, F# and PowerShell<ul>
+<li>This comes with a PowerShell runtime so you don't even have to install PowerShell on your machine... just the kernel</li>
+<li>It's cross-platform - Windows, macOS, and Linux</li>
+</ul>
+</li>
+</ul>
+<p>Since this article is about Kubernetes, you should also have a Kubernetes cluster and <code>kubectl</code> available.</p>
+<h3 id="Install-powershell-yaml">
+<a class="anchor" href="#Install-powershell-yaml" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install <code>powershell-yaml</code><a class="anchor-link" href="#Install-powershell-yaml"> </a>
+</h3>
+<p>We're also going to install this PowerShell for working with YAML. It is solely used to mutate the YAML example. You don't need this in the wild... but it helps!</p>
+<p>What's nice is that we can simply install it with a code cell like so:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Install</span><span class="o">-</span><span class="n">Module</span> <span class="o">-</span><span class="n">Name</span> <span class="n">powershell</span><span class="o">-</span><span class="n">yaml</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id='Now-the-"demo"...'>
+<a class="anchor" href="#Now-the-" demo aria-hidden="true"><span class="octicon octicon-link"></span></a>Now the "demo"...<a class="anchor-link" href="#Now-the-%22demo%22..."> </a>
+</h2>
+<p>The rest of this article comes straight from <a href="https://github.com/kubernetes/website/blob/master/content/en/docs/tasks/debug-application-cluster/debug-application-introspection.md">this markdown file</a> that I've converted into a Notebook by taking the code blocks and turning them into Notebook code cells.</p>
+<h2 id="Using-kubectl-describe-pod-to-fetch-details-about-pods">
+<a class="anchor" href="#Using-kubectl-describe-pod-to-fetch-details-about-pods" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using <code>kubectl describe pod</code> to fetch details about pods<a class="anchor-link" href="#Using-kubectl-describe-pod-to-fetch-details-about-pods"> </a>
+</h2>
+<p>For this example we'll use a Deployment to create two pods.</p>
+<blockquote>
+<p>application/nginx-with-request.yaml</p>
+</blockquote>
+
+<pre><code>apiVersion:apps/v1kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80</code></pre>
+<p>Create deployment by running following command:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">kubectl</span> <span class="n">apply</span> <span class="o">-</span><span class="n">f</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">k8s</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">application</span><span class="o">/</span><span class="n">nginx</span><span class="o">-</span><span class="k">with</span><span class="o">-</span><span class="n">request</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>deployment.apps/nginx-deployment created
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Check pod status by following command:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">kubectl</span> <span class="n">get</span> <span class="n">pods</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>NAME                               READY   STATUS    RESTARTS   AGE
+nginx-deployment-8df4655b6-6cznf   1/1     Running   0          22s
+nginx-deployment-8df4655b6-nzw89   1/1     Running   0          22s
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can retrieve a lot more information about each of these pods using <code>kubectl describe pod</code>. For example:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Get the Pod name</span>
+<span class="err">$</span><span class="n">result</span> <span class="o">=</span> <span class="n">kubectl</span> <span class="n">get</span> <span class="n">pods</span> <span class="o">-</span><span class="n">o</span> <span class="n">json</span> <span class="o">|</span> <span class="n">ConvertFrom</span><span class="o">-</span><span class="n">Json</span>
+<span class="err">$</span><span class="n">podName</span> <span class="o">=</span> <span class="err">$</span><span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">name</span>
+
+<span class="n">kubectl</span> <span class="n">describe</span> <span class="n">pod</span> <span class="err">$</span><span class="n">podName</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Name:           nginx-deployment-8df4655b6-6cznf
+Namespace:      default
+Priority:       0
+Node:           docker-desktop/192.168.65.3
+Start Time:     Sat, 02 May 2020 17:55:46 -0700
+Labels:         app=nginx
+                pod-template-hash=8df4655b6
+Annotations:    &lt;none&gt;
+Status:         Running
+IP:             10.1.0.142
+Controlled By:  ReplicaSet/nginx-deployment-8df4655b6
+Containers:
+  nginx:
+    Container ID:   docker://76faabd5f8cdc6bad07dc188be00b97c790dd84db360449c2e1c5fbb2005981d
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:86ae264c3f4acb99b2dee4d0098c40cb8c46dcf9e1148f05d3a51c4df6758c12
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Sat, 02 May 2020 17:55:54 -0700
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     500m
+      memory:  128Mi
+    Requests:
+      cpu:        500m
+      memory:     128Mi
+    Environment:  &lt;none&gt;
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-v495d (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+Volumes:
+  default-token-v495d:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-v495d
+    Optional:    false
+QoS Class:       Guaranteed
+Node-Selectors:  &lt;none&gt;
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason     Age    From                     Message
+  ----    ------     ----   ----                     -------
+  Normal  Scheduled  3m51s  default-scheduler        Successfully assigned default/nginx-deployment-8df4655b6-6cznf to docker-desktop
+  Normal  Pulling    3m50s  kubelet, docker-desktop  Pulling image "nginx"
+  Normal  Pulled     3m43s  kubelet, docker-desktop  Successfully pulled image "nginx"
+  Normal  Created    3m43s  kubelet, docker-desktop  Created container nginx
+  Normal  Started    3m43s  kubelet, docker-desktop  Started container nginx
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Here you can see configuration information about the container(s) and Pod (labels, resource requirements, etc.), as well as status information about the container(s) and Pod (state, readiness, restart count, events, etc.).</p>
+<p>The container state is one of Waiting, Running, or Terminated. Depending on the state, additional information will be provided -- here you can see that for a container in Running state, the system tells you when the container started.</p>
+<p>Ready tells you whether the container passed its last readiness probe. (In this case, the container does not have a readiness probe configured; the container is assumed to be ready if no readiness probe is configured.)</p>
+<p>Restart Count tells you how many times the container has been restarted; this information can be useful for detecting crash loops in containers that are configured with a restart policy of 'always.'</p>
+<p>Currently the only Condition associated with a Pod is the binary Ready condition, which indicates that the pod is able to service requests and should be added to the load balancing pools of all matching services.</p>
+<p>Lastly, you see a log of recent events related to your Pod. The system compresses multiple identical events by indicating the first and last time it was seen and the number of times it was seen. "From" indicates the component that is logging the event, "SubobjectPath" tells you which object (e.g. container within the pod) is being referred to, and "Reason" and "Message" tell you what happened.</p>
+<h2 id="Example:-debugging-Pending-Pods">
+<a class="anchor" href="#Example:-debugging-Pending-Pods" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example: debugging Pending Pods<a class="anchor-link" href="#Example:-debugging-Pending-Pods"> </a>
+</h2>
+<p>A common scenario that you can detect using events is when you've created a Pod that won't fit on any node. For example, the Pod might request more resources than are free on any node, or it might specify a label selector that doesn't match any nodes. Let's say we created the previous Deployment with 5 replicas (instead of 2) and requesting 600 millicores instead of 500, on a four-node cluster where each (virtual) machine has 1 CPU. In that case one of the Pods will not be able to schedule. (Note that because of the cluster addon pods such as fluentd, skydns, etc., that run on each node, if we requested 1000 millicores then none of the Pods would be able to schedule.)</p>
+<p>Let's modify the above example to make this happen...</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Make changes to YAML</span>
+<span class="err">$</span><span class="n">yaml</span> <span class="o">=</span> <span class="n">Invoke</span><span class="o">-</span><span class="n">RestMethod</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">k8s</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">application</span><span class="o">/</span><span class="n">nginx</span><span class="o">-</span><span class="k">with</span><span class="o">-</span><span class="n">request</span><span class="o">.</span><span class="n">yaml</span> <span class="o">|</span> <span class="n">ConvertFrom</span><span class="o">-</span><span class="n">Yaml</span>
+<span class="err">$</span><span class="n">yaml</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">replicas</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="c1"># NOTE: for my Docker for Mac setup, 2000m is what it took to get some Pending.</span>
+<span class="err">$</span><span class="n">yaml</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">containers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">limits</span><span class="o">.</span><span class="n">cpu</span> <span class="o">=</span> <span class="s2">"2000m"</span>
+
+<span class="c1"># Apply those</span>
+<span class="err">$</span><span class="n">yaml</span> <span class="o">|</span> <span class="n">ConvertTo</span><span class="o">-</span><span class="n">Yaml</span> <span class="o">|</span> <span class="n">kubectl</span> <span class="n">apply</span> <span class="o">-</span><span class="n">f</span> <span class="o">-</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>deployment.apps/nginx-deployment configured
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Ok let's see how our pods are doing...</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">kubectl</span> <span class="n">get</span> <span class="n">pods</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-6c4956f7bc-b8pg5   0/1     Pending   0          109s
+nginx-deployment-6c4956f7bc-mb5pc   1/1     Running   0          2m4s
+nginx-deployment-6c4956f7bc-nkx2r   0/1     Pending   0          2m4s
+nginx-deployment-6c4956f7bc-rqhdw   1/1     Running   0          2m4s
+nginx-deployment-6c4956f7bc-zt92l   0/1     Pending   0          2m1s
+nginx-deployment-bc849747-269t7     1/1     Running   0          2m35s
+nginx-deployment-bc849747-whpvx     1/1     Running   0          2m35s
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To find out why all of the pods are not running, we can use <code>kubectl describe pod</code> on a "pending" Pod and look at its events:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># This just grabs the first 'Pending' pod's name</span>
+<span class="err">$</span><span class="n">result</span> <span class="o">=</span> <span class="n">kubectl</span> <span class="n">get</span> <span class="n">pods</span> <span class="o">--</span><span class="n">field</span><span class="o">-</span><span class="n">selector</span> <span class="n">status</span><span class="o">.</span><span class="n">phase</span><span class="o">=</span><span class="n">Pending</span> <span class="o">-</span><span class="n">o</span> <span class="n">json</span> <span class="o">|</span> <span class="n">ConvertFrom</span><span class="o">-</span><span class="n">Json</span>
+<span class="err">$</span><span class="n">podName</span> <span class="o">=</span> <span class="err">$</span><span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">name</span>
+
+<span class="n">kubectl</span> <span class="n">describe</span> <span class="n">pod</span> <span class="err">$</span><span class="n">podName</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Name:           nginx-deployment-6c4956f7bc-b8pg5
+Namespace:      default
+Priority:       0
+Node:           &lt;none&gt;
+Labels:         app=nginx
+                pod-template-hash=6c4956f7bc
+Annotations:    &lt;none&gt;
+Status:         Pending
+IP:             
+Controlled By:  ReplicaSet/nginx-deployment-6c4956f7bc
+Containers:
+  nginx:
+    Image:      nginx
+    Port:       80/TCP
+    Host Port:  0/TCP
+    Limits:
+      cpu:     2
+      memory:  128Mi
+    Requests:
+      cpu:        2
+      memory:     128Mi
+    Environment:  &lt;none&gt;
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-v495d (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  default-token-v495d:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-v495d
+    Optional:    false
+QoS Class:       Guaranteed
+Node-Selectors:  &lt;none&gt;
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type     Reason            Age                 From               Message
+  ----     ------            ----                ----               -------
+  Warning  FailedScheduling  68s (x14 over 19m)  default-scheduler  0/1 nodes are available: 1 Insufficient cpu.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Here you can see the event generated by the scheduler saying that the Pod failed to schedule for reason <code>FailedScheduling</code> (and possibly others).  The message tells us that there were not enough resources for the Pod on any of the nodes.</p>
+<p>To correct this situation, you can use <code>kubectl scale</code> to update your Deployment to specify four or fewer replicas. (Or you could just leave the one Pod pending, which is harmless.)</p>
+<p>Events such as the ones you saw at the end of <code>kubectl describe pod</code> are persisted in etcd and provide high-level information on what is happening in the cluster. To list all events you can use</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">kubectl</span> <span class="n">get</span> <span class="n">events</span> <span class="o">--</span><span class="n">field</span><span class="o">-</span><span class="n">selector</span> <span class="n">reason</span><span class="o">=</span><span class="n">FailedScheduling</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>LAST SEEN   TYPE      REASON             OBJECT                                  MESSAGE
+8s          Warning   FailedScheduling   pod/nginx-deployment-6c4956f7bc-b8pg5   0/1 nodes are available: 1 Insufficient cpu.
+28m         Warning   FailedScheduling   pod/nginx-deployment-6c4956f7bc-mb5pc   0/1 nodes are available: 1 Insufficient cpu.
+8s          Warning   FailedScheduling   pod/nginx-deployment-6c4956f7bc-nkx2r   0/1 nodes are available: 1 Insufficient cpu.
+8s          Warning   FailedScheduling   pod/nginx-deployment-6c4956f7bc-zt92l   0/1 nodes are available: 1 Insufficient cpu.
+29m         Warning   FailedScheduling   pod/nginx-deployment-bc849747-b87vx     0/1 nodes are available: 1 Insufficient cpu.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>but you have to remember that events are namespaced. This means that if you're interested in events for some namespaced object (e.g. what happened with Pods in namespace <code>my-namespace</code>) you need to explicitly provide a namespace to the command:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">kubectl</span> <span class="n">get</span> <span class="n">events</span> <span class="o">--</span><span class="n">namespace</span><span class="o">=</span><span class="n">my</span><span class="o">-</span><span class="n">namespace</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>No resources found.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To see events from all namespaces, you can use the <code>--all-namespaces</code> argument.</p>
+<p>In addition to <code>kubectl describe pod</code>, another way to get extra information about a pod (beyond what is provided by <code>kubectl get pod</code>) is to pass the <code>-o yaml</code> output format flag to <code>kubectl get pod</code>. This will give you, in YAML format, even more information than <code>kubectl describe pod</code>--essentially all of the information the system has about the Pod. Here you will see things like annotations (which are key-value metadata without the label restrictions, that is used internally by Kubernetes system components), restart policy, ports, and volumes.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">kubectl</span> <span class="n">get</span> <span class="n">pod</span> <span class="err">$</span><span class="n">podName</span> <span class="o">-</span><span class="n">o</span> <span class="n">yaml</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2020-05-03T01:25:37Z"
+  generateName: nginx-deployment-6c4956f7bc-
+  labels:
+    app: nginx
+    pod-template-hash: 6c4956f7bc
+  name: nginx-deployment-6c4956f7bc-b8pg5
+  namespace: default
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ReplicaSet
+    name: nginx-deployment-6c4956f7bc
+    uid: af67aea9-fae6-4368-a264-afc20cf27e2e
+  resourceVersion: "2275800"
+  selfLink: /api/v1/namespaces/default/pods/nginx-deployment-6c4956f7bc-b8pg5
+  uid: 6c4f5268-da0b-4abf-8987-5810481adeb3
+spec:
+  containers:
+  - image: nginx
+    imagePullPolicy: Always
+    name: nginx
+    ports:
+    - containerPort: 80
+      protocol: TCP
+    resources:
+      limits:
+        cpu: "2"
+        memory: 128Mi
+      requests:
+        cpu: "2"
+        memory: 128Mi
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: default-token-v495d
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: default-token-v495d
+    secret:
+      defaultMode: 420
+      secretName: default-token-v495d
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2020-05-03T01:25:37Z"
+    message: '0/1 nodes are available: 1 Insufficient cpu.'
+    reason: Unschedulable
+    status: "False"
+    type: PodScheduled
+  phase: Pending
+  qosClass: Guaranteed
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="The-end">
+<a class="anchor" href="#The-end" aria-hidden="true"><span class="octicon octicon-link"></span></a>The end<a class="anchor-link" href="#The-end"> </a>
+</h2>
+<p>The rest of the document requires spinning up multiple nodes that I don't need to to right now 😅 I think what I've shown so far should prove my point.</p>
+<h2 id="Remember-what-the-goal-of-this-was">
+<a class="anchor" href="#Remember-what-the-goal-of-this-was" aria-hidden="true"><span class="octicon octicon-link"></span></a>Remember what the goal of this was<a class="anchor-link" href="#Remember-what-the-goal-of-this-was"> </a>
+</h2>
+<p>You should be able to download this ipynb file, open it in either Jupyter Lab, nteract, or Azure Data Studio and follow along by clicking play next to each code block (assuming you have the prereqs).</p>
+<p>Try exploring with Notebooks for your onboarding documentation or troubleshooting guides. If you have other fun usecase for Notebooks-as-a-shell, let me know on Twitter!</p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="TylerLeonhardt/blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/blog/jupyter/powershell/kubernetes/kubectl/2020/05/02/Native-Commands.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Mostly just a bunch of cool Jupyter Notebooks 🎉</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/TylerLeonhardt" title="TylerLeonhardt"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/TylerLeonhardt" title="TylerLeonhardt"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
